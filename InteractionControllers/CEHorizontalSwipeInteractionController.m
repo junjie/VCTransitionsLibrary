@@ -90,6 +90,25 @@
         }
         case UIGestureRecognizerStateChanged: {
             if (self.interactionInProgress) {
+				
+				UISwipeGestureRecognizerDirection direction =
+				translation.x < 0 ?
+				UISwipeGestureRecognizerDirectionLeft :
+				UISwipeGestureRecognizerDirectionRight;
+				
+				// If the swipe direction has changed from when the swipe
+				// first started
+				if (self.swipeDirection != direction)
+				{
+					self.swipeDirection = direction;
+					
+					if (self.cancelOnDirectionChange)
+					{
+						gestureRecognizer.enabled = NO;
+						gestureRecognizer.enabled = YES;
+					}
+				}
+				
                 // compute the current position
                 CGFloat fraction = fabsf(translation.x / 200.0);
                 fraction = fminf(fmaxf(fraction, 0.0), 1.0);

@@ -19,4 +19,8 @@
 /// Reflects the direction of swipe. Only valid if interactionInProgress is YES
 @property (nonatomic) UISwipeGestureRecognizerDirection swipeDirection;
 
+/// Cancels the interaction if the swipe direction changes while an interaction
+/// is already in progress. Default: NO
+@property (nonatomic) BOOL cancelOnDirectionChange;
+
 @end
