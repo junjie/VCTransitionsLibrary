@@ -8,6 +8,23 @@
 
 #import "CEReversibleAnimationController.h"
 
+/// Specifies how to the presented controller is being animated
+typedef enum : NSInteger {
+	CECardsAnimateBySlidingUp, /*!< Slide the presented controller in from
+								bottom to top */
+	CECardsAnimateBySlidingDown, /*!< Slide the presented controller in from
+								top to bottom */
+	CECardsAnimateBySlidingLeft, /*!< Slide the presented controller in from
+								  right to left */
+	CECardsAnimateBySlidingRight, /*!< Slide the presented controller in from
+								left to right */
+} CECardsAnimation;
+
 @interface CECardsAnimationController : CEReversibleAnimationController
+
+/// Specifies how to the presented controller is being animated inwards. The
+/// dismissal action will be in the opposite direction.
+/// Default: CECardsAnimateBySlidingUp
+@property (nonatomic) CECardsAnimation animationStyle;
 
 @end

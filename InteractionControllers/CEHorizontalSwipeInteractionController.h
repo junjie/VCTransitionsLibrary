@@ -16,4 +16,7 @@
  */
 @interface CEHorizontalSwipeInteractionController : CEBaseInteractionController
 
+/// Reflects the direction of swipe. Only valid if interactionInProgress is YES
+@property (nonatomic) UISwipeGestureRecognizerDirection swipeDirection;
+
 @end

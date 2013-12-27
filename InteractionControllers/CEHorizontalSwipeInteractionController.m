@@ -50,6 +50,15 @@
             
             BOOL rightToLeftSwipe = translation.x < 0;
             
+			if (rightToLeftSwipe)
+			{
+				self.swipeDirection = UISwipeGestureRecognizerDirectionLeft;
+			}
+			else
+			{
+				self.swipeDirection = UISwipeGestureRecognizerDirectionRight;
+			}
+			
             // perform the required navigation operation ...
             
             if (_operation == CEInteractionOperationPop) {

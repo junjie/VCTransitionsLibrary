@@ -10,7 +10,15 @@
 
 @implementation CECardsAnimationController
 
-
+- (id)init
+{
+	self = [super init];
+	if (self)
+	{
+		_animationStyle = CECardsAnimateBySlidingUp;
+	}
+	return self;
+}
 
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext fromVC:(UIViewController *)fromVC toVC:(UIViewController *)toVC fromView:(UIView *)fromView toView:(UIView *)toView {
     
@@ -25,11 +33,62 @@
 -(void)executeForwardsAnimation:(id<UIViewControllerContextTransitioning>)transitionContext fromVC:(UIViewController *)fromVC toVC:(UIViewController *)toVC fromView:(UIView *)fromView toView:(UIView *)toView {
     
     UIView* containerView = [transitionContext containerView];
-    
-    // positions the to- view off the bottom of the sceen
+
+    // the current from- view frame, which is also where the to- view will be
     CGRect frame = [transitionContext initialFrameForViewController:fromVC];
+	
+	// positions the to- view off screen, depending on the animation style
     CGRect offScreenFrame = frame;
-    offScreenFrame.origin.y = offScreenFrame.size.height;
+	
+	// to simulate springiness, we'll overshoot the final frame first before
+	// we come to a complete rest
+	CGRect intermediateFrame = frame;
+	
+	switch (self.animationStyle)
+	{
+		case CECardsAnimateBySlidingUp:
+		{
+			offScreenFrame =
+			CGRectOffset(offScreenFrame, 0, offScreenFrame.size.height);
+			
+			intermediateFrame = CGRectOffset(frame, 0, -10);
+			break;
+		}
+			
+		case CECardsAnimateBySlidingDown:
+		{
+			offScreenFrame =
+			CGRectOffset(offScreenFrame, 0, -offScreenFrame.size.height);
+			
+			intermediateFrame = CGRectOffset(frame, 0, 10);
+			break;
+		}
+
+		case CECardsAnimateBySlidingLeft:
+		{
+			offScreenFrame =
+			CGRectOffset(offScreenFrame, offScreenFrame.size.width, 0);
+			
+			intermediateFrame = CGRectOffset(frame, -10, 0);
+			break;
+		}
+			
+		case CECardsAnimateBySlidingRight:
+		{
+			offScreenFrame =
+			CGRectOffset(offScreenFrame, -offScreenFrame.size.width, 0);
+			
+			intermediateFrame = CGRectOffset(frame, 10, 0);
+			break;
+		}
+			
+		default:
+		{
+			NSAssert(0, @"Invalid animationStyle %d", self.animationStyle);
+			break;
+		}
+	}
+
     toView.frame = offScreenFrame;
     
     [containerView insertSubview:toView aboveSubview:fromView];
@@ -37,7 +96,7 @@
     CATransform3D t1 = [self firstTransform];
     CATransform3D t2 = [self secondTransformWithView:fromView];
     
-    [UIView animateKeyframesWithDuration:self.duration delay:0.0 options:UIViewKeyframeAnimationOptionCalculationModeCubic animations:^{
+    [UIView animateKeyframesWithDuration:self.duration delay:0.0 options:UIViewKeyframeAnimationOptionCalculationModeLinear animations:^{
         
         // push the from- view to the back
         [UIView addKeyframeWithRelativeStartTime:0.0f relativeDuration:0.4f animations:^{
@@ -48,13 +107,14 @@
             fromView.layer.transform = t2;
         }];
 
-        // slide the to- view upwards. In his original implementation Tope used a 'spring' animation, however
-        // this does not work with keyframes, so we siulate it by overshooting the final location in
-        // the first keyframe
-        [UIView addKeyframeWithRelativeStartTime:0.6f relativeDuration:0.2f animations:^{
-            toView.frame = CGRectOffset(toView.frame, 0.0, -30.0);
+        // slide the to- view in position depending on the animation style.
+		// this is simulated with an intermediate frame since the original
+		// implementation by Tope used a 'spring' animation, which does not
+		// work with keyframes
+        [UIView addKeyframeWithRelativeStartTime:0.6f relativeDuration:0.3f animations:^{
+            toView.frame = intermediateFrame;
         }];
-        [UIView addKeyframeWithRelativeStartTime:0.8f relativeDuration:0.2f animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.9f relativeDuration:0.1f animations:^{
             toView.frame = frame;
         }];
 
@@ -77,9 +137,50 @@
     toView.alpha = 0.6;
     
     [containerView insertSubview:toView belowSubview:fromView];
-    
+
+	// determine where the from- view will exit
     CGRect frameOffScreen = frame;
-    frameOffScreen.origin.y = frame.size.height;
+
+	switch (self.animationStyle)
+	{
+		// We need to slide back down
+		case CECardsAnimateBySlidingUp:
+		{
+			frameOffScreen =
+			CGRectOffset(frameOffScreen, 0, frameOffScreen.size.height);
+			break;
+		}
+
+		// We need to slide back up
+		case CECardsAnimateBySlidingDown:
+		{
+			frameOffScreen =
+			CGRectOffset(frameOffScreen, 0, -frameOffScreen.size.height);
+			break;
+		}
+
+		// We need to slide rightwards
+		case CECardsAnimateBySlidingLeft:
+		{
+			frameOffScreen =
+			CGRectOffset(frameOffScreen, frameOffScreen.size.width, 0);
+			break;
+		}
+			
+		// We need to slide leftwards
+		case CECardsAnimateBySlidingRight:
+		{
+			frameOffScreen =
+			CGRectOffset(frameOffScreen, -frameOffScreen.size.width, 0);
+			break;
+		}
+			
+		default:
+		{
+			NSAssert(0, @"Invalid animationStyle %d", self.animationStyle);
+			break;
+		}
+	}
     
     CATransform3D t1 = [self firstTransform];
     
@@ -91,7 +192,7 @@
         }];
         
         // animate the to- view into place
-        [UIView addKeyframeWithRelativeStartTime:0.35f relativeDuration:0.35f animations:^{
+        [UIView addKeyframeWithRelativeStartTime:0.25f relativeDuration:0.5f animations:^{
             toView.layer.transform = t1;
             toView.alpha = 1.0;
         }];
