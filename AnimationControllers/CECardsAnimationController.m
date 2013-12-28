@@ -119,7 +119,15 @@
         }];
 
     } completion:^(BOOL finished) {
-        [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+		
+		BOOL cancelled = [transitionContext transitionWasCancelled];
+		
+		if (cancelled)
+		{
+			[containerView insertSubview:fromView aboveSubview:toView];
+		}
+		
+        [transitionContext completeTransition:!cancelled];
     }];
     
     
@@ -200,11 +208,17 @@
             toView.layer.transform = CATransform3DIdentity;
         }];
     } completion:^(BOOL finished) {
-        if ([transitionContext transitionWasCancelled]) {
-            toView.layer.transform = CATransform3DIdentity;
-            toView.alpha = 1.0;
-        }
-        [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+		
+		BOOL cancelled = [transitionContext transitionWasCancelled];
+		
+		if (cancelled)
+		{
+			toView.layer.transform = CATransform3DIdentity;
+            toView.alpha = 0.6;
+			[containerView insertSubview:fromView aboveSubview:toView];
+		}
+		
+        [transitionContext completeTransition:!cancelled];
     }];
 }
 
