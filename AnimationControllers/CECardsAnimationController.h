@@ -27,4 +27,18 @@ typedef enum : NSInteger {
 /// Default: CECardsAnimateBySlidingUp
 @property (nonatomic) CECardsAnimation animationStyle;
 
+/// Default: 0.6. Value of 0-1
+@property (nonatomic) CGFloat opacityOfPresentingViewAfterPresentation;
+
+/// Default: 0.6. Value of 0-1
+@property (nonatomic) CGFloat scaleOfPresentingViewAfterPresentation;
+
+/// Inset the presented view such that it is this number of points away from the
+/// left and right edge of the presenting view. Default: 0.
+@property (nonatomic) CGFloat xInsetsOfPresentedFrame;
+
+/// Inset the presented view such that it is this number of points away from the
+/// top and bottom edge of the presenting view. Default: 0.
+@property (nonatomic) CGFloat yInsetsOfPresentedFrame;
+
 @end

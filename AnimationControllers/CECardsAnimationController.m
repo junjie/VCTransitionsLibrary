@@ -16,6 +16,11 @@
 	if (self)
 	{
 		_animationStyle = CECardsAnimateBySlidingUp;
+		_opacityOfPresentingViewAfterPresentation = 0.6f;
+		_scaleOfPresentingViewAfterPresentation = 0.6f;
+		
+		_xInsetsOfPresentedFrame = 0;
+		_yInsetsOfPresentedFrame = 0;
 	}
 	return self;
 }
@@ -35,50 +40,64 @@
     UIView* containerView = [transitionContext containerView];
 
     // the current from- view frame, which is also where the to- view will be
-    CGRect frame = [transitionContext initialFrameForViewController:fromVC];
+    CGRect fromFrame = [transitionContext initialFrameForViewController:fromVC];
+
+	// where we'd like to- view to end up
+	CGRect toFrame =
+	CGRectInset(fromFrame,
+				self.xInsetsOfPresentedFrame,
+				self.yInsetsOfPresentedFrame);
 	
 	// positions the to- view off screen, depending on the animation style
-    CGRect offScreenFrame = frame;
+    CGRect offScreenFrame;
 	
 	// to simulate springiness, we'll overshoot the final frame first before
 	// we come to a complete rest
-	CGRect intermediateFrame = frame;
+	CGRect intermediateFrame;
 	
 	switch (self.animationStyle)
 	{
 		case CECardsAnimateBySlidingUp:
 		{
 			offScreenFrame =
-			CGRectOffset(offScreenFrame, 0, offScreenFrame.size.height);
+			CGRectOffset(toFrame, 0, fromFrame.size.height);
 			
-			intermediateFrame = CGRectOffset(frame, 0, -10);
+			intermediateFrame =
+			CGRectOffset(toFrame, 0, -10);
+			
 			break;
 		}
 			
 		case CECardsAnimateBySlidingDown:
 		{
 			offScreenFrame =
-			CGRectOffset(offScreenFrame, 0, -offScreenFrame.size.height);
+			CGRectOffset(toFrame, 0, -fromFrame.size.height);
 			
-			intermediateFrame = CGRectOffset(frame, 0, 10);
+			intermediateFrame =
+			CGRectOffset(toFrame, 0, 10);
+			
 			break;
 		}
-
+			
 		case CECardsAnimateBySlidingLeft:
 		{
 			offScreenFrame =
-			CGRectOffset(offScreenFrame, offScreenFrame.size.width, 0);
+			CGRectOffset(toFrame, fromFrame.size.width, 0);
 			
-			intermediateFrame = CGRectOffset(frame, -10, 0);
+			intermediateFrame =
+			CGRectOffset(toFrame, -10, 0);
+			
 			break;
 		}
 			
 		case CECardsAnimateBySlidingRight:
 		{
 			offScreenFrame =
-			CGRectOffset(offScreenFrame, -offScreenFrame.size.width, 0);
+			CGRectOffset(toFrame, -fromFrame.size.width, 0);
 			
-			intermediateFrame = CGRectOffset(frame, 10, 0);
+			intermediateFrame =
+			CGRectOffset(toFrame, 10, 0);
+			
 			break;
 		}
 			
@@ -93,18 +112,17 @@
     
     [containerView insertSubview:toView aboveSubview:fromView];
     
-    CATransform3D t1 = [self firstTransform];
-    CATransform3D t2 = [self secondTransformWithView:fromView];
-    
     [UIView animateKeyframesWithDuration:self.duration delay:0.0 options:UIViewKeyframeAnimationOptionCalculationModeLinear animations:^{
         
         // push the from- view to the back
-        [UIView addKeyframeWithRelativeStartTime:0.0f relativeDuration:0.4f animations:^{
-            fromView.layer.transform = t1;
-            fromView.alpha = 0.6;
+        [UIView addKeyframeWithRelativeStartTime:0.0f relativeDuration:0.3f animations:^{
+            fromView.layer.transform =
+			[self fallBackwardsAndScaleDownSlightly];
+            fromView.alpha = self.opacityOfPresentingViewAfterPresentation;
         }];
-        [UIView addKeyframeWithRelativeStartTime:0.2f relativeDuration:0.4f animations:^{
-            fromView.layer.transform = t2;
+        [UIView addKeyframeWithRelativeStartTime:0.3f relativeDuration:0.4f animations:^{
+            fromView.layer.transform =
+			[self sendFurtherBackwardsAndALittleUpward:fromView];
         }];
 
         // slide the to- view in position depending on the animation style.
@@ -115,7 +133,7 @@
             toView.frame = intermediateFrame;
         }];
         [UIView addKeyframeWithRelativeStartTime:0.9f relativeDuration:0.1f animations:^{
-            toView.frame = frame;
+            toView.frame = toFrame;
         }];
 
     } completion:^(BOOL finished) {
@@ -138,16 +156,27 @@
     UIView* containerView = [transitionContext containerView];
     
     // positions the to- view behind the from- view
-    CGRect frame = [transitionContext initialFrameForViewController:fromVC];
-    toView.frame = frame;
-    CATransform3D scale = CATransform3DIdentity;
-    toView.layer.transform = CATransform3DScale(scale, 0.6, 0.6, 1);
-    toView.alpha = 0.6;
+    CGRect fromFrame = [transitionContext initialFrameForViewController:fromVC];
+    
+	// get the final size of the to-view, adjusted for the size we inseted
+	// earlier during presentation
+	CGRect toFrame =
+	CGRectInset(fromFrame,
+				-self.xInsetsOfPresentedFrame,
+				-self.yInsetsOfPresentedFrame);
+	
+	toView.frame = toFrame;
+	
+	CATransform3D toViewOriginalTransformation =
+	[self sendFurtherBackwardsAndALittleUpward:toView];
+	
+	toView.layer.transform = toViewOriginalTransformation;
+    toView.alpha = self.opacityOfPresentingViewAfterPresentation;
     
     [containerView insertSubview:toView belowSubview:fromView];
 
-	// determine where the from- view will exit
-    CGRect frameOffScreen = frame;
+	// determine where the from- view will exit to
+    CGRect frameOffScreen;
 
 	switch (self.animationStyle)
 	{
@@ -155,7 +184,7 @@
 		case CECardsAnimateBySlidingUp:
 		{
 			frameOffScreen =
-			CGRectOffset(frameOffScreen, 0, frameOffScreen.size.height);
+			CGRectOffset(fromFrame, 0, toFrame.size.height);
 			break;
 		}
 
@@ -163,7 +192,7 @@
 		case CECardsAnimateBySlidingDown:
 		{
 			frameOffScreen =
-			CGRectOffset(frameOffScreen, 0, -frameOffScreen.size.height);
+			CGRectOffset(fromFrame, 0, -toFrame.size.height);
 			break;
 		}
 
@@ -171,7 +200,7 @@
 		case CECardsAnimateBySlidingLeft:
 		{
 			frameOffScreen =
-			CGRectOffset(frameOffScreen, frameOffScreen.size.width, 0);
+			CGRectOffset(fromFrame, toFrame.size.width, 0);
 			break;
 		}
 			
@@ -179,7 +208,7 @@
 		case CECardsAnimateBySlidingRight:
 		{
 			frameOffScreen =
-			CGRectOffset(frameOffScreen, -frameOffScreen.size.width, 0);
+			CGRectOffset(fromFrame, -toFrame.size.width, 0);
 			break;
 		}
 			
@@ -190,8 +219,6 @@
 		}
 	}
     
-    CATransform3D t1 = [self firstTransform];
-    
     [UIView animateKeyframesWithDuration:self.duration delay:0 options:UIViewKeyframeAnimationOptionCalculationModeCubic animations:^{
 
         // push the from- view off the bottom of the screen
@@ -200,11 +227,12 @@
         }];
         
         // animate the to- view into place
-        [UIView addKeyframeWithRelativeStartTime:0.25f relativeDuration:0.5f animations:^{
-            toView.layer.transform = t1;
+        [UIView addKeyframeWithRelativeStartTime:0.1f relativeDuration:0.6f animations:^{
+            toView.layer.transform = [self fallBackwardsAndScaleDownSlightly];
             toView.alpha = 1.0;
         }];
-        [UIView addKeyframeWithRelativeStartTime:0.75f relativeDuration:0.25f animations:^{
+		
+        [UIView addKeyframeWithRelativeStartTime:0.7f relativeDuration:0.3f animations:^{
             toView.layer.transform = CATransform3DIdentity;
         }];
     } completion:^(BOOL finished) {
@@ -213,8 +241,8 @@
 		
 		if (cancelled)
 		{
-			toView.layer.transform = CATransform3DIdentity;
-            toView.alpha = 0.6;
+			toView.layer.transform = toViewOriginalTransformation;
+            toView.alpha = self.opacityOfPresentingViewAfterPresentation;
 			[containerView insertSubview:fromView aboveSubview:toView];
 		}
 		
@@ -222,21 +250,32 @@
     }];
 }
 
--(CATransform3D)firstTransform{
+#define INITIAL_TRANSFORMATION_SCALE 0.95
+#define M34_TRANSFORMATION 1.0/-900
+
+-(CATransform3D)fallBackwardsAndScaleDownSlightly
+{
     CATransform3D t1 = CATransform3DIdentity;
-    t1.m34 = 1.0/-900;
-    t1 = CATransform3DScale(t1, 0.95, 0.95, 1);
+    t1.m34 = M34_TRANSFORMATION;
+    t1 = CATransform3DScale(t1,
+							INITIAL_TRANSFORMATION_SCALE,
+							INITIAL_TRANSFORMATION_SCALE,
+							1);
+	
     t1 = CATransform3DRotate(t1, 15.0f * M_PI/180.0f, 1, 0, 0);
     return t1;
     
 }
 
--(CATransform3D)secondTransformWithView:(UIView*)view{
-    
+-(CATransform3D)sendFurtherBackwardsAndALittleUpward:(UIView*)view
+{
     CATransform3D t2 = CATransform3DIdentity;
-    t2.m34 = [self firstTransform].m34;
+    t2.m34 = M34_TRANSFORMATION;
     t2 = CATransform3DTranslate(t2, 0, view.frame.size.height*-0.08, 0);
-    t2 = CATransform3DScale(t2, 0.8, 0.8, 1);
+    t2 = CATransform3DScale(t2,
+							self.scaleOfPresentingViewAfterPresentation * INITIAL_TRANSFORMATION_SCALE,
+							self.scaleOfPresentingViewAfterPresentation * INITIAL_TRANSFORMATION_SCALE,
+							1);
     
     return t2;
 }
