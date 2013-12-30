@@ -118,6 +118,9 @@
         [UIView addKeyframeWithRelativeStartTime:0.0f relativeDuration:0.3f animations:^{
             fromView.layer.transform =
 			[self fallBackwardsAndScaleDownSlightly];
+			
+			fromView.layer.zPosition = toView.layer.zPosition - 10;
+			
             fromView.alpha = self.opacityOfPresentingViewAfterPresentation;
         }];
         [UIView addKeyframeWithRelativeStartTime:0.3f relativeDuration:0.4f animations:^{
@@ -145,6 +148,7 @@
 			[containerView insertSubview:fromView aboveSubview:toView];
 		}
 		
+		fromView.layer.zPosition = 0;
         [transitionContext completeTransition:!cancelled];
     }];
     
@@ -230,6 +234,8 @@
         [UIView addKeyframeWithRelativeStartTime:0.1f relativeDuration:0.6f animations:^{
             toView.layer.transform = [self fallBackwardsAndScaleDownSlightly];
             toView.alpha = 1.0;
+			
+			toView.layer.zPosition = fromView.layer.zPosition - 10;
         }];
 		
         [UIView addKeyframeWithRelativeStartTime:0.7f relativeDuration:0.3f animations:^{
@@ -246,6 +252,7 @@
 			[containerView insertSubview:fromView aboveSubview:toView];
 		}
 		
+		toView.layer.zPosition = 0;
         [transitionContext completeTransition:!cancelled];
     }];
 }
