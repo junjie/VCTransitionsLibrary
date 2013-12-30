@@ -119,7 +119,7 @@
             fromView.layer.transform =
 			[self fallBackwardsAndScaleDownSlightly];
 			
-			fromView.layer.zPosition = toView.layer.zPosition - 10;
+			fromView.layer.zPosition = toView.layer.zPosition - 1000;
 			
             fromView.alpha = self.opacityOfPresentingViewAfterPresentation;
         }];
@@ -235,7 +235,7 @@
             toView.layer.transform = [self fallBackwardsAndScaleDownSlightly];
             toView.alpha = 1.0;
 			
-			toView.layer.zPosition = fromView.layer.zPosition - 10;
+			toView.layer.zPosition = fromView.layer.zPosition - 1000;
         }];
 		
         [UIView addKeyframeWithRelativeStartTime:0.7f relativeDuration:0.3f animations:^{
