@@ -103,7 +103,7 @@
 			
 		default:
 		{
-			NSAssert(0, @"Invalid animationStyle %d", self.animationStyle);
+			NSAssert(0, @"Invalid animationStyle %ld", (long)self.animationStyle);
 			break;
 		}
 	}
@@ -218,7 +218,7 @@
 			
 		default:
 		{
-			NSAssert(0, @"Invalid animationStyle %d", self.animationStyle);
+			NSAssert(0, @"Invalid animationStyle %ld", (long)self.animationStyle);
 			break;
 		}
 	}
