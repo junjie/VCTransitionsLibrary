@@ -7,6 +7,7 @@
 //
 
 #import "CECardsAnimationController.h"
+#import "UIView+AutoLayout.h"
 
 @interface UIView (InsertSubviewIfPossible)
 /// Inserts the subview at index if possible. Else, adds subview to the end
@@ -26,6 +27,7 @@
 		
 		_xInsetsOfPresentedFrame = 0;
 		_yInsetsOfPresentedFrame = 0;
+		_maximumSizeOfPresentedFrame = CGSizeZero;
 	}
 	return self;
 }
@@ -37,7 +39,7 @@
     } else {
         [self executeForwardsAnimation:transitionContext fromVC:fromVC toVC:toVC fromView:fromView toView:toView];
     }
-    
+	
 }
 
 -(void)executeForwardsAnimation:(id<UIViewControllerContextTransitioning>)transitionContext fromVC:(UIViewController *)fromVC toVC:(UIViewController *)toVC fromView:(UIView *)fromView toView:(UIView *)toView {
@@ -52,6 +54,28 @@
 	CGRectInset(fromFrame,
 				self.xInsetsOfPresentedFrame,
 				self.yInsetsOfPresentedFrame);
+	
+	if (self.maximumSizeOfPresentedFrame.height > 0 &&
+		CGRectGetHeight(toFrame) > self.maximumSizeOfPresentedFrame.height)
+	{
+		CGFloat difference = CGRectGetHeight(toFrame) - self.maximumSizeOfPresentedFrame.height;
+		toFrame = CGRectInset(toFrame, 0, difference/2);
+	}
+	
+	if (self.maximumSizeOfPresentedFrame.width > 0 &&
+		CGRectGetWidth(toFrame) > self.maximumSizeOfPresentedFrame.width)
+	{
+		CGFloat difference = CGRectGetWidth(toFrame) - self.maximumSizeOfPresentedFrame.width;
+		toFrame = CGRectInset(toFrame, difference/2, 0);
+	}
+	
+	toFrame = CGRectIntegral(toFrame);
+	
+	[toView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	[containerView addSubview:toView];
+	
+	[containerView addConstraintsSizingSubview:toView toWidth:CGRectGetWidth(toFrame) height:CGRectGetHeight(toFrame)];
+	[containerView addConstraintsCenteringSubviewInSelf:toView];
 	
 	// positions the to- view off screen, depending on the animation style
     CGRect offScreenFrame;
@@ -189,14 +213,8 @@
     
     // positions the to- view behind the from- view
     CGRect fromFrame = [transitionContext initialFrameForViewController:fromVC];
-    
-	// get the final size of the to-view, adjusted for the size we inseted
-	// earlier during presentation
-	CGRect toFrame =
-	CGRectInset(fromFrame,
-				-self.xInsetsOfPresentedFrame,
-				-self.yInsetsOfPresentedFrame);
 	
+	CGRect toFrame = [transitionContext finalFrameForViewController:toVC];
 	toView.frame = toFrame;
 	
 	CATransform3D toViewOriginalTransformation =

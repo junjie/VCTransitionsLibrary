@@ -41,4 +41,10 @@ typedef enum : NSInteger {
 /// top and bottom edge of the presenting view. Default: 0.
 @property (nonatomic) CGFloat yInsetsOfPresentedFrame;
 
+/// Default: 0, 0, i.e. no maximum size. Otherwise, if the frame of the
+/// presented view, after inseting with the x and y insets above, is larger
+/// than this value on any sides, the presented frame will be resized to fit
+/// within this frame.
+@property (nonatomic) CGSize maximumSizeOfPresentedFrame;
+
 @end

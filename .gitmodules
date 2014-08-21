@@ -1,0 +1,3 @@
+[submodule "Dependencies/UIView+AutoLayout"]
+	path = Dependencies/UIView+AutoLayout
+	url = git@github.com:junjie/UIView-AutoLayout.git
