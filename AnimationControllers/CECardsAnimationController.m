@@ -86,7 +86,7 @@
 	[toView setTranslatesAutoresizingMaskIntoConstraints:NO];
 	[containerView addSubview:toView];
 	
-	[containerView addConstraintsSizingSubview:toView toWidth:CGRectGetWidth(toFrame) height:CGRectGetHeight(toFrame)];
+	[containerView addConstraintsSizingSubview:toView toWidth:CGRectGetWidth(toFrame) height:CGRectGetHeight(toFrame) withMinimumInsetsFromSelf:UIEdgeInsetsMake(self.yInsetsOfPresentedFrame, self.xInsetsOfPresentedFrame, self.yInsetsOfPresentedFrame, self.xInsetsOfPresentedFrame)];
 	[containerView addConstraintsCenteringSubviewInSelf:toView];
 	
 	// positions the to- view off screen, depending on the animation style
