@@ -20,6 +20,10 @@ typedef enum : NSInteger {
 								left to right */
 } CECardsAnimation;
 
+@interface CECardsPresentationController : UIPresentationController
+
+@end
+
 @interface CECardsAnimationController : CEReversibleAnimationController
 
 /// Specifies how to the presented controller is being animated inwards. The
