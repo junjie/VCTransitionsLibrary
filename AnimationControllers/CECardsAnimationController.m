@@ -9,11 +9,6 @@
 #import "CECardsAnimationController.h"
 #import "UIView+AutoLayout.h"
 
-@interface UIView (InsertSubviewIfPossible)
-/// Inserts the subview at index if possible. Else, adds subview to the end
-- (void)insertSubview:(UIView *)subview atIndexIfPossible:(NSInteger)index;
-@end
-
 @implementation CECardsAnimationController
 
 - (id)init
@@ -138,23 +133,9 @@
 	}
 
     toView.frame = offScreenFrame;
-	
-	UIView *originalSuperViewOfFromView = fromView.superview;
-	NSUInteger indexOfFromViewInOriginalSuperView =
-	[originalSuperViewOfFromView.subviews indexOfObject:fromView];
-	
-	// iOS 8 doesn't add fromView to the containerView by default.
-	// In fact, adding it seems to be problematic because it expects
-	// the fromView to remain where it is when we finally dismiss the toView.
-	// We're still going to add it for the animation here to work, but
-	// we'll have to put it back where it was.
-	if (containerView != originalSuperViewOfFromView)
-	{
-		[containerView addSubview:fromView];
-	}
-	
-	[containerView insertSubview:toView aboveSubview:fromView];
-	
+    
+    [containerView insertSubview:toView aboveSubview:fromView];
+    
     [UIView animateKeyframesWithDuration:self.duration delay:0.0 options:UIViewKeyframeAnimationOptionCalculationModeLinear animations:^{
         
         // push the from- view to the back
@@ -190,15 +171,6 @@
 		{
 			[containerView insertSubview:fromView aboveSubview:toView];
 		}
-		else
-		{
-			// iOS 8 doesn't like fromView being added to the transition view
-			// Move it back so we don't get into trouble
-			if (originalSuperViewOfFromView != fromView.superview)
-			{
-				[originalSuperViewOfFromView insertSubview:fromView atIndexIfPossible:indexOfFromViewInOriginalSuperView];
-			}
-		}
 		
 		fromView.layer.zPosition = 0;
         [transitionContext completeTransition:!cancelled];
@@ -222,13 +194,7 @@
 	
 	toView.layer.transform = toViewOriginalTransformation;
     toView.alpha = self.opacityOfPresentingViewAfterPresentation;
-
-	// Fix for iOS 8 where we need to put back toView to its original
-	// after we put it in our containerView for animation
-	UIView *originalSuperViewOfToView = toView.superview;
-	NSUInteger indexOfToViewInOriginalSuperView =
-	[originalSuperViewOfToView.subviews indexOfObject:toView];
-	
+    
     [containerView insertSubview:toView belowSubview:fromView];
 
 	// determine where the from- view will exit to
@@ -301,23 +267,7 @@
 		{
 			toView.layer.transform = toViewOriginalTransformation;
             toView.alpha = self.opacityOfPresentingViewAfterPresentation;
-			
-			// iOS 8 doesn't like fromView being added to the transition view
-			// Move it back so we don't get into trouble
-			if (originalSuperViewOfToView != toView.superview)
-			{
-				[originalSuperViewOfToView insertSubview:toView atIndexIfPossible:indexOfToViewInOriginalSuperView];
-			}
-			else
-			{
-				[containerView insertSubview:fromView aboveSubview:toView];
-			}
-		}
-		// iOS 8 doesn't like fromView being added to the transition view
-		// Move it back so we don't get into trouble
-		else if (originalSuperViewOfToView != toView.superview)
-		{
-			[originalSuperViewOfToView insertSubview:toView atIndexIfPossible:indexOfToViewInOriginalSuperView];
+			[containerView insertSubview:fromView aboveSubview:toView];
 		}
 		
 		toView.layer.zPosition = 0;
@@ -353,23 +303,6 @@
 							1);
     
     return t2;
-}
-
-@end
-
-
-@implementation UIView (InsertSubviewIfPossible)
-
-- (void)insertSubview:(UIView *)subview atIndexIfPossible:(NSInteger)index
-{
-	if (index <= [self.subviews count])
-	{
-		[self insertSubview:subview atIndex:index];
-	}
-	else
-	{
-		[self addSubview:subview];
-	}
 }
 
 @end
