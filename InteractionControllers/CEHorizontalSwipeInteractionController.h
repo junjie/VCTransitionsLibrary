@@ -23,4 +23,10 @@
 /// is already in progress. Default: NO
 @property (nonatomic) BOOL cancelOnDirectionChange;
 
+/// YES when the interactive transition reaches a point where it'll complete
+/// when even when the gesture ends
+@property (nonatomic, readonly) BOOL transitionWillComplete;
+
+@property (nonatomic, copy) void (^didFinishInteractiveTransition)(UIViewController *fromController);
+
 @end

@@ -8,8 +8,11 @@
 
 #import "CEHorizontalSwipeInteractionController.h"
 
+@interface CEHorizontalSwipeInteractionController ()
+@property (nonatomic) BOOL transitionWillComplete;
+@end
+
 @implementation CEHorizontalSwipeInteractionController {
-    BOOL _shouldCompleteTransition;
     UIViewController *_viewController;
     UIPanGestureRecognizer *_gesture;
     CEInteractionOperation _operation;
@@ -34,6 +37,16 @@
 - (CGFloat)completionSpeed
 {
     return 1 - self.percentComplete;
+}
+
+- (void)finishInteractiveTransition
+{
+	[super finishInteractiveTransition];
+	
+	if (self.didFinishInteractiveTransition != NULL)
+	{
+		self.didFinishInteractiveTransition(_viewController);
+	}
 }
 
 - (void)handleGesture:(UIPanGestureRecognizer*)gestureRecognizer {
@@ -107,7 +120,7 @@
                 // compute the current position
                 CGFloat fraction = fabsf(translation.x / 200.0);
                 fraction = fminf(fmaxf(fraction, 0.0), 1.0);
-                _shouldCompleteTransition = (fraction > 0.5);
+                self.transitionWillComplete = (fraction > 0.5);
                 
                 // if an interactive transitions is 100% completed via the user interaction, for some reason
                 // the animation completion block is not called, and hence the transition is not completed.
@@ -124,7 +137,7 @@
         case UIGestureRecognizerStateCancelled:
             if (self.interactionInProgress) {
                 self.interactionInProgress = NO;
-                if (!_shouldCompleteTransition || gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
+                if (!self.transitionWillComplete || gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
                     [self cancelInteractiveTransition];
                 }
                 else {
