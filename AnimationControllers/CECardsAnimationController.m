@@ -18,18 +18,6 @@
 
 - (id)init
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED <= __IPHONE_7_1
-#error CECardsAnimationController only works with iOS 8
-#else
-	BOOL isiOS8OrLater = (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1);
-	
-	if (!isiOS8OrLater)
-	{
-		NSAssert(0, @"CECardsAnimationController only works with iOS 8");
-		return nil;
-	}
-#endif
-	
 	self = [super init];
 	if (self)
 	{
