@@ -50,6 +50,15 @@
 }
 
 - (void)handleGesture:(UIPanGestureRecognizer*)gestureRecognizer {
+	if ([_viewController respondsToSelector:@selector(allowsInteractiveDismissal)])
+	{
+		BOOL allowsInteractiveDismissal = [(id <CEInteractionController>)_viewController allowsInteractiveDismissal];
+		if (!allowsInteractiveDismissal)
+		{
+			return;
+		}
+	}
+	
     CGPoint translation = [gestureRecognizer translationInView:gestureRecognizer.view.superview];
     CGPoint vel = [gestureRecognizer velocityInView:gestureRecognizer.view];
     

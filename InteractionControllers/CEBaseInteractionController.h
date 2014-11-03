@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol CEInteractionController <NSObject>
+@optional
+/// Wired view controller can implement this method and return NO to prevent
+/// interactive dismissal.
+- (BOOL)allowsInteractiveDismissal;
+@end
+
 /**
  An enumeration that describes the navigation operation that an interaction controller should initiate.
  */
@@ -36,7 +43,7 @@ typedef NS_ENUM(NSInteger, CEInteractionOperation) {
  @param viewController The view controller which this interaction should add a gesture recognizer to.
  @param operation The operation that this interaction initiates when.
 */
-- (void)wireToViewController:(UIViewController*)viewController forOperation:(CEInteractionOperation)operation;
+- (void)wireToViewController:(UIViewController *)viewController forOperation:(CEInteractionOperation)operation;
 
 /**
  This property indicates whether an interactive transition is in progress.
