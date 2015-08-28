@@ -10,28 +10,32 @@
 
 @interface CEHorizontalSwipeInteractionController ()
 @property (nonatomic) BOOL transitionWillComplete;
+@property (nonatomic, weak) UIViewController *viewController;
+@property (nonatomic) CEInteractionOperation operation;
 @end
 
-@implementation CEHorizontalSwipeInteractionController {
-    UIViewController *_viewController;
-    UIPanGestureRecognizer *_gesture;
-    CEInteractionOperation _operation;
-}
+@implementation CEHorizontalSwipeInteractionController
 
--(void)dealloc {
-    [_gesture.view removeGestureRecognizer:_gesture];
+- (instancetype)init
+{
+	self = [super init];
+	if (self)
+	{
+		
+	}
+	return self;
 }
 
 - (void)wireToViewController:(UIViewController *)viewController forOperation:(CEInteractionOperation)operation{
-    _operation = operation;
-    _viewController = viewController;
+    self.operation = operation;
+    self.viewController = viewController;
     [self prepareGestureRecognizerInView:viewController.view];
 }
 
 
 - (void)prepareGestureRecognizerInView:(UIView*)view {
-    _gesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
-    [view addGestureRecognizer:_gesture];
+    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleGesture:)];
+    [view addGestureRecognizer:panGesture];
 }
 
 - (CGFloat)completionSpeed
@@ -45,14 +49,14 @@
 	
 	if (self.didFinishInteractiveTransition != NULL)
 	{
-		self.didFinishInteractiveTransition(_viewController);
+		self.didFinishInteractiveTransition(self.viewController);
 	}
 }
 
 - (void)handleGesture:(UIPanGestureRecognizer*)gestureRecognizer {
-	if ([_viewController respondsToSelector:@selector(allowsInteractiveDismissal)])
+	if ([self.viewController respondsToSelector:@selector(allowsInteractiveDismissal)])
 	{
-		BOOL allowsInteractiveDismissal = [(id <CEInteractionController>)_viewController allowsInteractiveDismissal];
+		BOOL allowsInteractiveDismissal = [(id <CEInteractionController>)self.viewController allowsInteractiveDismissal];
 		if (!allowsInteractiveDismissal)
 		{
 			return;
@@ -78,30 +82,30 @@
 			
             // perform the required navigation operation ...
             
-            if (_operation == CEInteractionOperationPop) {
+            if (self.operation == CEInteractionOperationPop) {
                 // for pop operation, fire on right-to-left
                 if (rightToLeftSwipe) {
                     self.interactionInProgress = YES;
-                    [_viewController.navigationController popViewControllerAnimated:YES];
+                    [self.viewController.navigationController popViewControllerAnimated:YES];
                 }
-            } else if (_operation == CEInteractionOperationTab) {
+            } else if (self.operation == CEInteractionOperationTab) {
                 // for tab controllers, we need to determine which direction to transition
                 if (rightToLeftSwipe) {
-                    if (_viewController.tabBarController.selectedIndex < _viewController.tabBarController.viewControllers.count - 1) {
+                    if (self.viewController.tabBarController.selectedIndex < self.viewController.tabBarController.viewControllers.count - 1) {
                         self.interactionInProgress = YES;
-                        _viewController.tabBarController.selectedIndex++;
+                        self.viewController.tabBarController.selectedIndex++;
                     }
                     
                 } else {
-                    if (_viewController.tabBarController.selectedIndex > 0) {
+                    if (self.viewController.tabBarController.selectedIndex > 0) {
                         self.interactionInProgress = YES;
-                        _viewController.tabBarController.selectedIndex--;
+                        self.viewController.tabBarController.selectedIndex--;
                     }
                 }
             } else {
                 // for dismiss, fire regardless of the translation direction
                 self.interactionInProgress = YES;
-                [_viewController dismissViewControllerAnimated:YES completion:nil];
+                [self.viewController dismissViewControllerAnimated:YES completion:nil];
             }
             break;
         }
