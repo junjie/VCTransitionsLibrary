@@ -131,7 +131,7 @@
 				}
 				
                 // compute the current position
-                CGFloat fraction = fabsf(translation.x / 200.0);
+                CGFloat fraction = fabs(translation.x / 200.0);
                 fraction = fminf(fmaxf(fraction, 0.0), 1.0);
                 self.transitionWillComplete = (fraction > 0.5);
                 
