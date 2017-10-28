@@ -127,6 +127,7 @@
 					{
 						gestureRecognizer.enabled = NO;
 						gestureRecognizer.enabled = YES;
+						return;
 					}
 				}
 				
