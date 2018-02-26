@@ -13,6 +13,8 @@
 
 - (void)presentationTransitionWillBegin
 {
+	[super presentationTransitionWillBegin];
+	
 	id transitionCoordinator = [[self presentedViewController] transitionCoordinator];
 	
 	UIView *fromView = self.presentingViewController.view;
@@ -46,6 +48,8 @@ animation:^(id<UIViewControllerTransitionCoordinatorContext> context) {
 
 - (void)dismissalTransitionWillBegin
 {
+	[super dismissalTransitionWillBegin];
+	
 	UIView *fromView = self.presentedView;
 	UIView *toView = self.presentingViewController.view;
 	

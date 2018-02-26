@@ -7,6 +7,7 @@
 //
 
 #import "CEReversibleAnimationController.h"
+#import "CEBasePresentationController.h"
 
 /// Specifies how to the presented controller is being animated
 typedef enum : NSInteger {
@@ -20,7 +21,7 @@ typedef enum : NSInteger {
 								left to right */
 } CECardsAnimation;
 
-@interface CECardsPresentationController : UIPresentationController
+@interface CECardsPresentationController : CEBasePresentationController
 
 @end
 
